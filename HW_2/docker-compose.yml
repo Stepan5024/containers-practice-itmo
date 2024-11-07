@@ -51,7 +51,6 @@ services:
 
 volumes:
   database:
-    external: true
 
 networks:
   default_network:
