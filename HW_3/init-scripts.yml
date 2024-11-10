@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+data:
+  init-nextcloud-db.sql: |
+    CREATE USER nextcloud WITH PASSWORD 'nextcloudpassword';
+    CREATE DATABASE nextcloud OWNER nextcloud;
+    GRANT ALL PRIVILEGES ON DATABASE nextcloud TO nextcloud;
