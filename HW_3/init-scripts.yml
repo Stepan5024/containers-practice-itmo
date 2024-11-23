@@ -2,8 +2,28 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init-scripts
+  labels:
+    app: postgres
 data:
   init-nextcloud-db.sql: |
-    CREATE USER nextcloud WITH PASSWORD 'nextcloudpassword';
-    CREATE DATABASE nextcloud OWNER nextcloud;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT FROM pg_catalog.pg_roles
+            WHERE rolname = 'nextcloud'
+        ) THEN
+            CREATE ROLE nextcloud WITH LOGIN PASSWORD 'nextcloudpassword';
+        END IF;
+    END $$;
+
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT FROM pg_database
+            WHERE datname = 'nextcloud'
+        ) THEN
+            CREATE DATABASE nextcloud OWNER nextcloud;
+        END IF;
+    END $$;
+
     GRANT ALL PRIVILEGES ON DATABASE nextcloud TO nextcloud;
