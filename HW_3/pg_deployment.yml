@@ -28,10 +28,4 @@ spec:
           envFrom:
             - configMapRef:
                 name: postgres-configmap
-          volumeMounts:
-            - name: init-scripts
-              mountPath: /docker-entrypoint-initdb.d
-      volumes:
-        - name: init-scripts
-          configMap:
-            name: postgres-init-scripts
+
