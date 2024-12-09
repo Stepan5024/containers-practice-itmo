@@ -54,3 +54,6 @@ Minikube позволяет создать локальный кластер Kub
 ![alt text](image-17.png)
 
 Ответ на вопрос: 
+
+![alt text](image-18.png)
+

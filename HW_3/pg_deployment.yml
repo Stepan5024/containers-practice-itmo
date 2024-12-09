@@ -28,4 +28,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: postgres-configmap
-
+          env:
+            - name: NC_setup_create_db_user
+              value: "false"
