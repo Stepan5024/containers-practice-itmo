@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: postgres-deployment
 spec:
   replicas: 1
   selector:
@@ -28,10 +28,14 @@ spec:
           envFrom:
             - configMapRef:
                 name: postgres-configmap
-          volumeMounts:
-            - name: init-scripts
-              mountPath: /docker-entrypoint-initdb.d
-      volumes:
-        - name: init-scripts
-          configMap:
-            name: postgres-init-scripts
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD

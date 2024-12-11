@@ -1,13 +1,3 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: nextcloud-secret
-  labels:
-    app: nextcloud
-type: Opaque
-stringData:
-  NEXTCLOUD_ADMIN_PASSWORD: "literally_any_password"
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,42 +29,68 @@ spec:
               containerPort: 80
               protocol: TCP
           env:
-            - name: POSTGRES_DB
-              value: 'nextcloud'
-            - name: POSTGRES_USER
-              value: 'nextcloud'
-            - name: POSTGRES_PASSWORD
-              value: 'nextcloudpassword'
             - name: NEXTCLOUD_UPDATE
-              value: '1'
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: NEXTCLOUD_UPDATE
             - name: ALLOW_EMPTY_PASSWORD
-              value: 'yes'
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: ALLOW_EMPTY_PASSWORD
             - name: POSTGRES_HOST
-              value: postgres-service
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: POSTGRES_HOST
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: NEXTCLOUD_TRUSTED_DOMAINS
+            - name: NEXTCLOUD_ADMIN_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: NEXTCLOUD_ADMIN_USER
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nextcloud-configmap
+                  key: NEXTCLOUD_ADMIN_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: postgres-configmap
                   key: POSTGRES_DB
-            - name: NEXTCLOUD_TRUSTED_DOMAINS
-              value: "127.0.0.1"
+            - name: NC_setup_create_db_user 
+              value: "false"
             - name: POSTGRES_USER
               valueFrom:
-                configMapKeyRef:
-                  name: postgres-configmap
+                secretKeyRef:
+                  name: postgres-secret
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  name: postgres-configmap
-                  key: POSTGRES_PASSWORD
-            - name: NEXTCLOUD_ADMIN_USER
-              value: any_name_you_want
-            - name: NEXTCLOUD_ADMIN_PASSWORD
-              valueFrom:
                 secretKeyRef:
-                  name: nextcloud-secret
-                  key: NEXTCLOUD_ADMIN_PASSWORD
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
           imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
       restartPolicy: Always
       dnsPolicy: ClusterFirst
