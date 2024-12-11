@@ -6,13 +6,3 @@ metadata:
     app: postgres
 data:
   POSTGRES_DB: "postgres"
-  - name: POSTGRES_USER
-    valueFrom:
-      secretKeyRef:
-        name: pg_secret
-        key: POSTGRES_USER
-  - name: POSTGRES_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: pg_secret
-        key: POSTGRES_PASSWORD
